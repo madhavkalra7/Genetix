@@ -1,8 +1,8 @@
 const Page=()=>{
   return(
-    <div>
-      Hello World
-    </div>
+    <button>
+      potty
+    </button>
   );
 }
 export default Page;
