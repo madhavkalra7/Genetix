@@ -1,8 +1,10 @@
+import { Button } from "@/components/ui/button";
+
 const Page=()=>{
   return(
-    <button>
-      potty
-    </button>
+   <div>
+    <Button variant={"destructive"}>potty</Button>
+   </div>
   );
 }
 export default Page;
