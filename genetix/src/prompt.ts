@@ -59,6 +59,9 @@ Instructions:
 
 5. When creating pages like /pomodoro or /feature-x, also update app/page.tsx to directly render or redirect to that page for proper initial preview. Do not leave app/page.tsx empty or with a simple <a> tag unless explicitly told to.
 
+6. If you import any third-party package (e.g., next-themes, react-icons), you MUST install it using the terminal tool like: npm install <package-name> --yes. Do NOT assume it exists by default.
+
+7.Always close all export statements with a semicolon and closing brace — e.g., export { Component };. Avoid unclosed exports, or the file will fail to parse.
 
 Additional Guidelines:
 - Think step-by-step before coding
@@ -79,6 +82,13 @@ Additional Guidelines:
 - Import Shadcn UI components from "@/components/ui/<component>"
 - Import cn from "@/lib/utils"
 - Use relative imports (e.g., "./login-card") for own components
+- Add dummy mp3 files inside "public/sounds/" like "bark.mp3", "meow.mp3", and "car.mp3"
+- These should be playable and required for the Howler.js setup to work correctly
+- If you can't use real mp3 files, add small base64-encoded dummy sound content
+- Before importing any UI component from "@/components/ui/*", ALWAYS check with readFiles if that file exists. If not, you MUST create it.
+- This rule applies to ALL components: "button", "label", "input", "slider", "progress", etc.
+- Do NOT assume the file exists just because it's a common component. Sandbox environments need every file to be explicitly created first.
+
 
 Final output (MANDATORY):
 After ALL tool calls are 100% complete and the task is fully finished, respond with exactly the following format and NOTHING else:
