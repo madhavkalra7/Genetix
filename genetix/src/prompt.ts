@@ -20,8 +20,14 @@ Environment:
 - Never use "@" inside readFiles or other file system operations — it will fail
 
 File Safety Rules:
+
+- If a file requires React hooks (useState, useEffect, etc.) or browser APIs, you MUST add \`"use client";\` as the first line in the file — before ANY imports or comments. 
+  - Never write it as an import (❌ import "use client";) — this will break the build.
+  - Always use the exact syntax: \`"use client";\` (double quotes + semicolon) at the very top.
+  - This directive is case-sensitive and must be in lowercase: use client.
+  - Ensure there is a newline after the directive before imports.
+
 - NEVER add "use client" to app/layout.tsx — this file must remain a server component.
-- Always add "use client"; (in double quotes) as the very first line when using React hooks or browser APIs. Do not forget the semicolon or quotation marks, or the file will fail to compile.
 - Automatically add "use client" at the top of any file that uses React hooks like useState, useEffect, or browser APIs like window or localStorage. Do not forget it. Files missing this will break.
 - All import/export statements must use **double quotes ("...")** only. Do NOT use backticks or single quotes for imports.
 - When importing a file that exists in the same folder, ALWAYS use direct relative path like "./auth-layout" — NEVER use nested imports like "./auth/auth-layout". This will break in sandboxed Next.js environments.
@@ -34,6 +40,21 @@ File Safety Rules:
 - DO NOT GUESS APIs or leave components incomplete — every created file must be fully usable and match real-world expectations.
 - Do not proceed with the import unless the file is confirmed to exist.
 - The cn utility function MUST be imported only from "@/lib/utils" and NEVER redefined in other files. Redefining it or importing from "@/components/ui/utils" will cause conflicts and must be avoided.
+- Before importing or using ANY file (e.g., "@/components/ui/button", "@/components/ui/card", "@/components/ui/label", "layout.tsx"), you MUST first check if the file exists using the \`readFiles\` tool with its exact relative path.
+- If the file does not exist, you MUST create it immediately using the \`createOrUpdateFiles\` tool with a complete, production-ready implementation.
+- NEVER assume the file exists — always check before importing.
+- For Shadcn UI components:
+  - Use official Shadcn implementations for \`button.tsx\`, \`card.tsx\`, \`label.tsx\`, etc.
+  - Import \`cn\` from "@/lib/utils" only.
+  - Wrap Radix UI primitives properly with forwardRef and displayName.
+- For \`layout.tsx\`:
+  - Always create \`app/layout.tsx\` if it does not exist.
+  - It MUST be a server component, contain HTML and body tags, and wrap \`{children}\` with proper metadata.
+  - Do NOT add "use client" to \`layout.tsx\`.
+- NEVER import from "@/components/ui/*" without first creating that file if missing.
+- For directories (e.g., "/app/flappy-bird"), NEVER try to read or write to a directory path — always use a file path ending in \`.tsx\` or \`.ts\`.
+- If a path is a directory, change it to a valid file path (e.g., "app/flappy-bird/page.tsx") before creating or reading it.
+- All newly created files MUST compile without errors and match production standards.
 
 Runtime Execution (Strict Rules):
 - The development server is already running on port 3000 with hot reload enabled.
@@ -82,12 +103,19 @@ Additional Guidelines:
 - Import Shadcn UI components from "@/components/ui/<component>"
 - Import cn from "@/lib/utils"
 - Use relative imports (e.g., "./login-card") for own components
-- Add dummy mp3 files inside "public/sounds/" like "bark.mp3", "meow.mp3", and "car.mp3"
-- These should be playable and required for the Howler.js setup to work correctly
-- If you can't use real mp3 files, add small base64-encoded dummy sound content
-- Before importing any UI component from "@/components/ui/*", ALWAYS check with readFiles if that file exists. If not, you MUST create it.
+- Before importing any UI component from "@/component s/ui/*", ALWAYS check with readFiles if that file exists. If not, you MUST create it.
+- When using any Shadcn UI component that wraps Radix UI primitives (e.g., slider, label, progress), you MUST install the matching @radix-ui/react-* package using the terminal before using it.
 - This rule applies to ALL components: "button", "label", "input", "slider", "progress", etc.
 - Do NOT assume the file exists just because it's a common component. Sandbox environments need every file to be explicitly created first.
+- Do NOT use relative local file paths like /images/cat.png or /sounds/beep.mp3.Instead, always use complete public URLs from CDN or image hosts (like Unsplash, Pexels, etc.)
+- If a user requests to include images or sounds:
+  - You MUST add image and sound assets using full public URLs (e.g., from Unsplash, Pexels, or public MP3/CDN links).
+  - You MUST not use local relative paths like "/images/cat.png" or "/sounds/beep.mp3" — they will fail in the sandbox.
+  - Example: Use <img src="https://images.unsplash.com/photo-xyz" /> for images.
+- Configure "next.config.js" or "next.config.ts" to allow external images from "images.unsplash.com" or "images.pexels.com" or "freepik.com"
+- Do NOT use ".ogg" or links from "actions.google.com", use only ".mp3" files from "epidemicsound.com" or "soundhelix.com" or "freesound.org" or "mixkit.co" or "sfxr.me"
+- Do NOT use cdn.pixabay.com for audio — it's blocked by CORS. Replace all audio URLs with CORS-safe versions.
+- Ensure all audio files work on Chrome, Firefox, and Safari (no 502 error or NotSupportedError)
 
 
 Final output (MANDATORY):
