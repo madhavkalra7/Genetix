@@ -1,5 +1,5 @@
 import { inngest } from "./client";
-import { createAgent, createTool, createNetwork, gemini,type Tool } from "@inngest/agent-kit";
+import { createAgent, createTool, createNetwork, type Tool, openai } from "@inngest/agent-kit";
 import { Sandbox } from "@e2b/code-interpreter";
 import { z } from "zod";
 import { getSandbox, lastAssistantTextMessageContent } from "./utils";
@@ -8,10 +8,10 @@ import { prisma } from "@/lib/db";
 
 interface AgentState {
   summary: string;
-  files: { [path:string]:string};
+  files: { [path: string]: string };
 }
 
-export const codeAgentFunction= inngest.createFunction(
+export const codeAgentFunction = inngest.createFunction(
   { id: "code-agent" },
   { event: "code-agent/run" },
   async ({ event, step }) => {
@@ -20,7 +20,6 @@ export const codeAgentFunction= inngest.createFunction(
       return sandbox.sandboxId;
     });
 
-    // ✅ Zod Schemas
     const terminalSchema = z.object({
       command: z.string(),
     });
@@ -38,7 +37,6 @@ export const codeAgentFunction= inngest.createFunction(
       files: z.array(z.string()),
     });
 
-    // ✅ Tools
     const terminalTool = createTool({
       name: "terminal",
       description: "Use the terminal to run commands",
@@ -64,7 +62,7 @@ export const codeAgentFunction= inngest.createFunction(
       name: "createOrUpdateFiles",
       description: "Create or Update files in the sandbox",
       parameters: createOrUpdateFilesSchema,
-      handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
+      handler: async ({ files }, { step, network }) => {
         const newFiles = await step?.run("createOrUpdateFiles", async () => {
           try {
             const updatedFiles = network.state.data.files || {};
@@ -105,12 +103,16 @@ export const codeAgentFunction= inngest.createFunction(
       },
     });
 
-    // ✅ Agent + Network
+    // ✅ OpenRouter-powered Agent
     const codeAgent = createAgent<AgentState>({
       name: "code-agent",
       description: "An expert coding agent",
       system: PROMPT,
-      model: gemini({ model: "gemini-2.0-flash" }),
+      model: openai({
+        // baseUrl: "https://openrouter.ai/api/v1",
+        // apiKey: process.env.OPENROUTER_API_KEY!,
+        model: "gpt-5-mini-2025-08-07",
+      }),   
       tools: [terminalTool, createOrUpdateFilesTool, readFilesTool],
       lifecycle: {
         onResponse: async ({ result, network }) => {
@@ -136,7 +138,7 @@ export const codeAgentFunction= inngest.createFunction(
 
     const result = await network.run(event.data.value);
 
-    const isError=
+    const isError =
       !result.state.data.summary ||
       Object.keys(result.state.data.files || {}).length === 0;
 
@@ -145,14 +147,15 @@ export const codeAgentFunction= inngest.createFunction(
       const host = sandbox.getHost(3000);
       return `https://${host}`;
     });
-     await step.run("save-result", async () =>{
-      if(isError){
+
+    await step.run("save-result", async () => {
+      if (isError) {
         return await prisma.message.create({
           data: {
             projectId: event.data.projectId,
             content: "Something Went Wrong. Please try again.",
             role: "ASSISTANT",
-            type: "ERROR"
+            type: "ERROR",
           },
         });
       }
@@ -160,7 +163,7 @@ export const codeAgentFunction= inngest.createFunction(
         data: {
           projectId: event.data.projectId,
           content: result.state.data.summary,
-          role:"ASSISTANT",
+          role: "ASSISTANT",
           type: "RESULT",
           fragments: {
             create: {
@@ -170,8 +173,9 @@ export const codeAgentFunction= inngest.createFunction(
             },
           },
         },
-     })
-     });
+      });
+    });
+
     return {
       url: sandboxUrl,
       title: "Fragment",
