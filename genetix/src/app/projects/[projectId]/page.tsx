@@ -25,7 +25,7 @@ const Page = async ({ params }: Props) => {
             <Suspense fallback={<p>Loading...</p>}>
                 <ProjectView projectId={projectId} />
             </Suspense>
-            Project id : {projectId}
+            {/* Project id : {projectId} */}
         </HydrationBoundary>
     );
 };
