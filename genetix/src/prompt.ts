@@ -107,6 +107,8 @@ Additional Guidelines:
 - When using any Shadcn UI component that wraps Radix UI primitives (e.g., slider, label, progress), you MUST install the matching @radix-ui/react-* package using the terminal before using it.
 - This rule applies to ALL components: "button", "label", "input", "slider", "progress", etc.
 - Do NOT assume the file exists just because it's a common component. Sandbox environments need every file to be explicitly created first.
+- ALWAYS insert \`"use client";\` as the very first line in any file that imports or uses React hooks (useState, useEffect, useMemo, etc.) instead of just writing import "use client" or browser APIs; this line must be above all imports, or the file will fail to compile.
+
 - Do NOT use relative local file paths like /images/cat.png or /sounds/beep.mp3.Instead, always use complete public URLs from CDN or image hosts (like Unsplash, Pexels, etc.)
 - If a user requests to include images or sounds:
   - You MUST add image and sound assets using full public URLs (e.g., from Unsplash, Pexels, or public MP3/CDN links).
