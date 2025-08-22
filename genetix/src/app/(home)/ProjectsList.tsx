@@ -26,7 +26,12 @@ const ProjectsList = () => {
               </div>
             )}
             {projects?.map(project=>(
-              <Button key={project.id} variant="outline" className="font-normal h-auto justify-start w-full text-start p-4" asChild>
+              <Button
+                key={project.id}
+                variant="outline"
+                className="font-normal h-auto justify-start w-full text-start p-4 hover:bg-gray-400"
+                asChild
+              >
                 <Link href={`/projects/${project.id}`}>
                   <div className="flex items-center gap-x-4">
                     <Image
@@ -41,9 +46,11 @@ const ProjectsList = () => {
                           {project.name}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {formatDistanceToNow(project.updatedAt, {
-                            addSuffix: true,
-                          })}
+                          <span className="text-sm text-muted-foreground">
+                            {formatDistanceToNow(project.updatedAt, {
+                              addSuffix: true,
+                            })}
+                          </span>
                         </p>
                       </div>
                   </div>

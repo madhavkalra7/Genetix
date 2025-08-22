@@ -83,7 +83,7 @@ const Page = () => {
           <div className="backdrop-blur-md bg-black/40 border border-gray-700 shadow-2xl px-8 py-8 w-full text-center space-y-6 mt-1">
             <div className="flex flex-col sm:flex-row items-center gap-3">
               <Input
-                className="bg-black/40 border border-white/30 placeholder:text-gray-400 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-white font-[Orbitron]"
+                className="bg-black/40 border border-white/30 placeholder:text-gray-400 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-white font-[Orbitron] [&::selection]:bg-white [&::selection]:text-black"
                 placeholder="🌑 e.g. Build a crypto dashboard"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -103,7 +103,7 @@ const Page = () => {
                   key={prompt}
                   variant="outline"
                   onClick={() => setValue(prompt)}
-                  className="text-black bg-white/80 hover:bg-white/90 border-white/20 rounded-full px-4 py-2 transition font-[Orbitron]"
+                  className="text-white bg-white/10 hover:bg-white border border-white/30 hover:text-gray-900 rounded-full px-4 py-2 transition font-[Orbitron]"
                 >
                   {prompt}
                 </Button>
