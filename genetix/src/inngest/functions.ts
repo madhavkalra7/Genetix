@@ -118,7 +118,9 @@ export const codeAgentFunction = inngest.createFunction(
         onResponse: async ({ result, network }) => {
           const lastAssistantMessageText = lastAssistantTextMessageContent(result);
           if (lastAssistantMessageText?.includes("<task_summary>")) {
-            network.state.data.summary = lastAssistantMessageText;
+            if (network?.state?.data) {
+              network.state.data.summary = lastAssistantMessageText;
+            }
           }
           return result;
         },
