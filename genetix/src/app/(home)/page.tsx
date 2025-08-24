@@ -1,12 +1,14 @@
 "use client";
+import { ProjectForm } from "./project-form";
 import ProjectsList from "./ProjectsList";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useClerk } from "@clerk/nextjs";
 
 const Page = () => {
   const [value, setValue] = useState("");
@@ -14,11 +16,26 @@ const Page = () => {
   const [scrollThumbTop, setScrollThumbTop] = useState(0);
   const router = useRouter();
   const trpc = useTRPC();
-
+  const clerk = useClerk();
+  const queryClient = useQueryClient();
   const createProject = useMutation(
     trpc.projects.create.mutationOptions({
-      onError: (error) => toast.error(error.message),
+      onError: (error) => {
+        toast.error(error.message);
+        if (error.data?.code === "UNAUTHORIZED") {
+          clerk.openSignIn();
+        }
+        if (error.data?.code === "TOO_MANY_REQUESTS") {
+          router.push("/pricing");
+        }
+      },
       onSuccess: (data) => {
+        queryClient.invalidateQueries(
+          trpc.projects.getMany.queryOptions(),
+        );
+        queryClient.invalidateQueries(
+          trpc.usage.status.queryOptions()
+        );
         toast.success("🚀 Project created");
         router.push(`/projects/${data.id}`);
       },
