@@ -77,7 +77,6 @@ const AssistantMessage = ({content,
                 height={18}
                 className="shrink-0"
               />
-                {/* TODO: add logo */}
                 <span className="text-sm font-medium">Genetix</span>
                 <span className="text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
                     {format(createdAt, "HH:mm 'on' MMM dd, yyyy")}
